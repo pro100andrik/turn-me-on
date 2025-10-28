@@ -1,10 +1,6 @@
 <html>
   <link rel="manifest" href="manifest.json" />
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
+  <link rel="stylesheet" href="styles.css" />
 
   <head>
     <title>Turn me ON!</title>
@@ -12,6 +8,73 @@
 
   <body>
     <h1>Turn me ON!</h1>
-    <button>Turn ON</button>
+    <button id="power-button" onclick="handleButton('power')">Power</button>
+    <button id="power-hold-button" onclick="handleButton('powerHold')">
+      Power Hold
+    </button>
+    <button id="reset-button" onclick="handleButton('reset')">Reset</button>
+    <span id="status-text">Waiting</span>
+    <input type="text" name="" id="hostname-input" placeholder="Hostname" />
+    <input type="password" name="" id="password-input" placeholder="Password" />
+    <button onclick="saveHostAndPass()">Save</button>
+    <button onclick="clearHostAndPass()">Clear</button>
   </body>
+
+  <script>
+    document.getElementById("hostname-input").value =
+      localStorage.getItem("host") || "";
+    document.getElementById("password-input").value =
+      localStorage.getItem("password") || "";
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+
+    function saveHostAndPass() {
+      const host = getHostname();
+      const password = getPassword();
+      localStorage.setItem("host", host);
+      localStorage.setItem("password", password);
+      alert("Saved!");
+    }
+
+    function clearHostAndPass() {
+      localStorage.removeItem("host");
+      localStorage.removeItem("password");
+      alert("Cleared!");
+    }
+
+    function getHostname() {
+      return document.getElementById("hostname-input").value;
+    }
+
+    function getPassword() {
+      return document.getElementById("password-input").value;
+    }
+
+    function setStatusLoading(action) {
+      document.getElementById("status-text").innerText = "Loading " + action;
+    }
+
+    async function getStatus(host, action, password) {
+      try {
+        const response = await fetch(`${host}/${action}?key=${password}`, {
+          method: "GET",
+        });
+        console.log("response", response);
+        const status = await response.text();
+        document.getElementById("status-text").innerText = status;
+      } catch (error) {
+        console.log("error", error);
+        document.getElementById("status-text").innerText = "error";
+        return;
+      }
+    }
+
+    async function handleButton(button) {
+      setStatusLoading(button);
+      await getStatus(getHostname(), button, getPassword());
+    }
+  </script>
 </html>
+<!-- http://konand.ddns.net:8080/power?key=Pro100andrik_94  -->
