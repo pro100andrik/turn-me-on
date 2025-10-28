@@ -1,0 +1,17 @@
+<html>
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
+  <head>
+    <title>Turn me ON!</title>
+  </head>
+
+  <body>
+    <h1>Turn me ON!</h1>
+    <button>Turn ON</button>
+  </body>
+</html>
